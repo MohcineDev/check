@@ -1,5 +1,7 @@
 package piscine
 
+import "fmt"
+
 func FirstWord(s string) string {
 	res := ""
 
@@ -59,7 +61,7 @@ func RepeatAlpha(s string) string {
 					break
 				}
 			}
-		} else if  s[i] >= 'A' && s[i] <= 'Z' {
+		} else if s[i] >= 'A' && s[i] <= 'Z' {
 			for j := 'A'; j <= 'Z'; j++ {
 				index++
 				if rune(s[i]) == j {
@@ -75,4 +77,34 @@ func RepeatAlpha(s string) string {
 
 	}
 	return res
+}
+
+func FromTo(from int, to int) string {
+	res := ""
+	if from > 99 || from < 0 || to > 99 || to < 0 {
+		return "Invalid\n"
+	}
+
+	if from <= to {
+		for i := from; i <= to; i++ {
+			if i < 10 {
+				res += fmt.Sprintf("0%d ", i)
+			} else {
+				res += fmt.Sprintf("%d", i)
+			}
+		}
+	} else if from > to {
+		for i := from; i >= to; i-- {
+
+			if i == 1 {
+				res += fmt.Sprintf("0%d", i)
+			}else if i < 10 {
+				res += fmt.Sprintf("0%d ", i)
+			} else {
+				res += fmt.Sprintf("%d ", i)
+			}
+		}
+	
+	}
+	return res + "\n"
 }
