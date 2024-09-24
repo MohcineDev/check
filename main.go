@@ -1,6 +1,10 @@
 package piscine
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/01-edu/z01"
+)
 
 func FirstWord(s string) string {
 	res := ""
@@ -98,13 +102,42 @@ func FromTo(from int, to int) string {
 
 			if i == 1 {
 				res += fmt.Sprintf("0%d", i)
-			}else if i < 10 {
+			} else if i < 10 {
 				res += fmt.Sprintf("0%d ", i)
 			} else {
 				res += fmt.Sprintf("%d ", i)
 			}
 		}
-	
+
 	}
 	return res + "\n"
+}
+func Itoa(n int) string {
+	res := ""
+	num := 0
+	sign := ""
+	if n < 0 {
+		sign = "-"
+		n *= -1
+	}
+	if n == 0 {
+		return "0"
+	}
+
+	for n > 0 {
+		num = n % 10
+		n = n / 10
+		res = string(rune(num)+'0') + res
+	}
+
+	return sign + res
+}
+
+func PrintMemory(arr [10]byte) {
+
+	for i := 0; i < len(arr); i++ {
+		z01.PrintRune(rune(arr[i]))
+	}
+	z01.PrintRune(10)
+	z01.PrintRune(65)
 }
