@@ -99,7 +99,6 @@ func FromTo(from int, to int) string {
 		}
 	} else if from > to {
 		for i := from; i >= to; i-- {
-
 			if i == 1 {
 				res += fmt.Sprintf("0%d", i)
 			} else if i < 10 {
@@ -108,10 +107,10 @@ func FromTo(from int, to int) string {
 				res += fmt.Sprintf("%d ", i)
 			}
 		}
-
 	}
 	return res + "\n"
 }
+
 func Itoa(n int) string {
 	res := ""
 	num := 0
@@ -134,10 +133,29 @@ func Itoa(n int) string {
 }
 
 func PrintMemory(arr [10]byte) {
+	base := "0123456789abcdef"
+	fmt.Println("")
+	z01.PrintRune(71)
+	z01.PrintRune(rune(71))
+	fmt.Println("")
+	for i := 0; i < len(arr); i++ {
+		div := int(arr[i]) / len(base)
+		mod := int(arr[i]) % len(base)
+		z01.PrintRune(rune(base[div]))
+		z01.PrintRune(rune(base[mod]))
+		z01.PrintRune(' ')
+
+		if i == 3 || i == 7 {
+			z01.PrintRune('\n')
+		}
+	}
+	z01.PrintRune('\n')
 
 	for i := 0; i < len(arr); i++ {
 		z01.PrintRune(rune(arr[i]))
+		if arr[i] < 32 || arr[i] > 127 {
+			z01.PrintRune('.')
+		}
 	}
-	z01.PrintRune(10)
-	z01.PrintRune(65)
+	fmt.Println("")
 }
