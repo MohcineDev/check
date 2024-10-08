@@ -1,21 +1,17 @@
 function firstDayWeek(weekNum, year) {
+    if (weekNum == 1) {
+        return "01-01-" + year
+    }
     let weekInMills = (weekNum - 1) * 7 * 24 * 60 * 60 * 1000
 
-    let date = new Date(weekInMills + new Date(year).getTime() + (60 * 60 * 1000))
-    let day = date.getDate()
-    let month = date.getMonth()
-    let y = date.getFullYear()
+    let date = new Date(weekInMills + new Date(year).getTime())
 
-    console.log(date)
-    console.log("m : " + month)
-    if (month < 9) {
-        month = '0' + (month + 1)
-    }
-    if (day <= 9) {
-        day = '0' + day
+
+
+    while (date.getDay() !== 1) {
+
+        date.setDate(date.getDate() - 1)
     }
 
-    return `${day}-${month}-${y}`
+    return date.toISOString().slice(0, 10).split("-").reverse().join("-")
 }
-
-console.log(firstDayWeek(1, '1000')); 
