@@ -19,23 +19,34 @@ export const styles = [
 
 let count = 0
 let end = false
+let allremoveed = false
+
+
 export function pimp() {
-    if (count == 0) {
-        end = false
-    }
     const btn = document.querySelector('button')
-    if (count <= styles.length && !end) {
-        console.log(btn);
-        btn.classList.add("unpimp")
+    if (count == 0 && allremoveed) {
+        end = false
+        console.log("hi");
+    }
+
+    if (count < styles.length && !end) {
         btn.classList.add(styles[count])
+        btn.classList.remove("unpimp")
         count++
     }
-    if (count > styles.length) {
+
+    if (count == styles.length) {
+        btn.classList.add("unpimp")
         end = true
     }
+    ///removinnnnnnnnnnng
     if (end) {
-        count--
-        btn.classList.remove("unpimp")
         btn.classList.remove(styles[count])
+        if (count == 0) {
+
+            btn.classList.remove("unpimp")
+            allremoveed = true
+        }
+        count > 0 ?  count-- : null
     }
 }
