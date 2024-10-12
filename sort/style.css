@@ -1,0 +1,27 @@
+:root {
+    --dark: #101020;
+    --light-dark: #8a8ab3;
+}
+
+* {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--dark);
+}
+
+h1 {
+    color: var(--dark);
+}
+
+ th, td{
+    padding: 5px;
+    border: 1px solid var(--light-dark);
+    border-radius: 3px;
+}
+
+th{
+    text-transform: capitalize;
+}
+
+span{
+    display: block;
+}
