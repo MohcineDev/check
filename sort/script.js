@@ -1,10 +1,12 @@
 const URL = "https://rawcdn.githack.com/akabab/superhero-api/0.2.0/api/all.json"
 const THEAD = document.querySelector('thead')
 const TBODY = document.querySelector('tbody')
-const TABLE_HEAD = ['icon', 'name', 'fullName', 'Powerstats', 'race', 'gender', 'height', 'weight', 'placeOfBirth', 'alignment',]
+const TABLE_HEAD = ['icon', 'name', 'full Name', 'Power stats', 'race', 'gender', 'height', 'weight', 'place Of Birth', 'alignment',]
+const SEARCH_INPUT = document.querySelector('#search')
 
-
+let superheroes = []
 let tr = ''
+
 // This function is called only after the data has been fetched, and parsed.
 const loadData = heroes => {
     if (heroes.length) {
@@ -12,13 +14,26 @@ const loadData = heroes => {
         for (let i = 0; i < TABLE_HEAD.length; i++) {
             createAppendNode("thead", "th", TABLE_HEAD[i])
         }
+        heroes.forEach((elem, i) => {
+            if (i < 10) {
+                superheroes.push(elem)
+            }
+        })
+        buildTable(superheroes)
     }
-    heroes.forEach((elem, i) => {
-        if (i < 20) {
+
+    console.log("heroas:", superheroes.length, superheroes);
+}
+
+
+function buildTable(table) {
+    TBODY.innerHTML =''
+    table.forEach((elem, i) => {
+        if (i < 10) {
             ///create table row
             tr = document.createElement('tr')
             let powerstats = `
-            <span>intelligence : ${elem.powerstats.intelligence} </span>
+            <span>intelligence&nbsp;:&nbsp;${elem.powerstats.intelligence} </span>
             <span>strength : ${elem.powerstats.strength} </span>
             <span>speed : ${elem.powerstats.speed} </span>
             <span>durability : ${elem.powerstats.durability} </span>
@@ -41,7 +56,6 @@ const loadData = heroes => {
         }
     });
 }
-
 // Request the file with fetch, the data will downloaded to your browser cache.
 fetch('https://rawcdn.githack.com/akabab/superhero-api/0.2.0/api/all.json')
     .then((response) => response.json()) // parse the response from JSON
@@ -59,4 +73,23 @@ function createAppendNode(place, tag, value) {
     } else {
         place.appendChild(node)
     }
+}
+
+///SEARCH
+
+SEARCH_INPUT.addEventListener('keyup', (e) => {
+    console.log(e);
+    buildTable(filterTable(SEARCH_INPUT.value, superheroes))
+})
+
+
+function filterTable(value, table) {
+    let result = []
+
+    for (let i = 0; i < superheroes.length; i++) {
+        if (superheroes[i].name.includes(value)) {
+            result.push(superheroes[i])
+        }
+    }
+    return result
 }
