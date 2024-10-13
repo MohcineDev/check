@@ -1,29 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Sortable</title>
 </head>
+
 <body>
     <h1>Sort</h1>
+    <div class="container">
 
-    <input type="text" name="" id="search">
-    <select name="" id="">
-        <option value="10">10</option>
-        <option value="20" selected>20</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-        <option value="all">all results</option>
-    </select>
+        <input type="text" placeholder="Search..." id="search">
+        <select name="" id="rowsToDisplay">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="all">all results</option>
+        </select>
+    </div>
     <table>
         <thead>
         </thead>
         <tbody>
-            
+
         </tbody>
     </table>
+
+    <div class="btn-wrapper">
+
+    </div>
+
+    <footer>
+        <p>sortable &copy; <span id="year"></span></p>
+    </footer>
+    <svg class="scroll" id="scroll-top" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+        <title>scroll</title>
+        <circle cx="30" cy="30" r="29" style="fill:#aaa;opacity:0.20" />
+        <polyline points="43.62 22.19 30 37.81 16.38 22.19"
+            style="fill:none;stroke:#101020;stroke-miterlimit:10;stroke-width:3px" />
+    </svg>
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -8,29 +8,168 @@
     color: var(--dark);
 }
 
+body {
+    position: relative;
+    max-width: 1500px;
+    margin: auto;
+}
+
+body.blur {
+    background-color: #555;
+}
+
 h1 {
     color: var(--dark);
 }
 
-th, td {
-    padding: 5px;
-    border: 1px solid var(--light-dark);
-    border-radius: 3px;
+table {
+    width: 100%;
+
 }
 
 tr:nth-child(2n+1) {
-    background-color: #fafdff;
-
+    background-color: #eaf3f8;
 }
 
 th {
     text-transform: capitalize;
+    user-select: none;
+    cursor: pointer;
+    color: #fefefe;
+    padding: 10px;
+    background-color: var(--dark);
+}
+
+th,
+td {
+    border: 1px solid var(--light-dark);
+    border-radius: 4px;
+    text-align: center;
+}
+
+td {
+    padding: 5px;
 }
 
 td:hover {
     background-color: #f4f4f6;
 }
 
+img {
+    cursor: pointer;
+    user-select: none;
+}
+
 span {
     display: block;
+}
+
+.container {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+select {
+    align-self: end;
+    padding: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid var(--light-dark);
+    border-radius: 4px;
+}
+
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--light-dark);
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.lg-img {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(41, 41, 59, 0.77);
+}
+
+.lg-img p span {
+    color: #fefefe;
+    margin: 6px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+
+.lg-img img {
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 0 10px white;
+}
+
+
+.btn-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.btn {
+    border: 1px solid var(--light-dark);
+    margin: 10px 5px;
+    padding: 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+
+footer {
+    margin: 3rem 0 5px 0;
+    text-align: center;
+    user-select: none;
+}
+
+footer span,
+footer p {
+    color: var(--light-dark);
+    display: inline;
+}
+
+/* svg btn style */
+svg {
+    cursor: pointer;
+    width: 40px;
+}
+
+@keyframes toTop {
+    50% {
+        bottom: 30px;
+    }
+}
+
+.scroll {
+    animation-name: toTop;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    bottom: 40px;
+}
+
+#scroll-top {
+    transform: rotateX(180deg);
+    right: 10px;
+    position: fixed;
+    bottom: 10px;
+    display: none;
 }
