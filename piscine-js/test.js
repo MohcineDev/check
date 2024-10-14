@@ -6,8 +6,7 @@ function fusion(obj1, obj2) {
         if (Array.isArray(obj2[keys[i]])) {
             // newObj.hasOwnProperty(keys[i]) ?
             //     newObj[keys[i]].push(...obj2[keys[i]]) : newObj[keys[i]] = obj2[keys[i]]
-            if (newObj[keys[i]] && newObj[keys[i]].length > 0) {
-                // if (newObj[keys[i]] && newObj[keys[i]].length > 0 ) {
+            if (newObj[keys[i]] && newObj[keys[i]].length >= 1) {
                 newObj[keys[i]].push(...obj2[keys[i]])
             }
             else {
@@ -22,8 +21,10 @@ function fusion(obj1, obj2) {
         }
         else {
             for (const key in obj2[keys[i]]) {
-                if (newObj[keys[i]] instanceof Object && !Array.isArray(obj2[keys[i]]) && !Array.isArray(newObj[keys[i]])) {
-                    fusion(newObj[keys[i]], obj2[keys[i]])
+                if (!Array.isArray(newObj[keys[i]]) && newObj[keys[i]] instanceof Object) {
+                    console.log(obj2[keys[i]]);
+                    // if (!Array.isArray(newObj[keys[i]]) && newObj[keys[i]] instanceof Object && !Array.isArray(obj2[keys[i]])) {
+                    fusion(newObj[keys[i-1]], obj2[keys[i]])
                 }
                 else if (!Array.isArray(obj2[keys[i]])) {
                     console.log(1000);
