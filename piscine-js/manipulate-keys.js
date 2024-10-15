@@ -27,18 +27,48 @@ function mapKeys(nutrients, func) {
 // output: { -carbohydrates: 12, -protein: 20, -fat: 5 }
 
 
+let carts = {
+    vinegar: 80,
+    sugar: 100,
+    oil: 50,
+    onion: 200,
+    garlic: 22,
+    paprika: 4,
+}
 
 function reduceKeys(nutrients, func, acc) {
-    let res = ''
     let keys = Object.keys(nutrients)
-    acc = acc || ''
-    for (let index = 1; index < keys.length; index++) {
+    let count = 0
+    let res = acc || ''
+    if (acc || acc == 0) {
+
+        if (typeof acc == 'number') {
+            res = parseInt(acc)
+        }
+    } else {
+        res = keys[0]
+        count = 1
+    }
+
+    for (let index = count; index < keys.length; index++) {
         // for (const key in nutrients) {
         // acc = keys[index]
-        res = acc + func(acc, keys[index])
+        // if (typeof (acc) == 'number') {
+        //     res = parseInt(func(res, keys[index]))
+        // }
+        res += typeof (acc) == 'number' ? parseInt(func('', keys[index])) : func('', keys[index])
     }
     return res
     // return Object.keys(nutrients).reduce(func)
+}
+
+
+function reduceValues(nutrients, func, acc) {
+    let total = acc || 0
+    for (const key in nutrients) {
+        total += func(0, nutrients[key])
+    }
+    return total
 }
 
 const nutritionDBs = {
@@ -52,9 +82,40 @@ const nutritionDBs = {
     orange: { calories: 49, protein: 0.9, carbs: 13, sugar: 12, fiber: 0.2, fat: 0.1 },
 }
 
-const joins = (acc, cr) => (`${acc}:${cr}`, ':')
+const join = (acc, cr) => (acc == null ? cr : `${acc}:${cr}`)
 
-// console.log(reduceKeys(nutritionDBs, (acc, cr) => `${acc}:${cr}`, ':'));
+console.log(reduceKeys(nutritionDBs, join, null))
 
 console.log(reduceKeys(nutrients, (acc, cr) => acc.concat(', ', cr)))
 // output: carbohydrates, protein, fat
+
+console.log(reduceKeys(carts, (acc, cr) => `${acc}${cr}:`, ':'))
+
+console.log(reduceKeys(carts, join, undefined));
+console.log(reduceKeys(carts, (acc, cr) => (acc += (cr.length <= 4) & 1), 0));
+
+
+console.log( mapKeys(
+    filterKeys(carts, (k) => k === 'onion'),
+    (k) => (k = 'orange'),
+  ));
+/*
+
+function reduceKeys(nutrients, func, acc) {
+    let res = ''
+    let keys = Object.keys(nutrients)
+    acc = acc || ''
+    res = acc ? acc : false || keys[0]
+    for (let index = acc ? 0 : 1; index < keys.length; index++) {
+        // for (const key in nutrients) {
+        // acc = keys[index]
+        if (acc === 0) {
+            res += func(res, keys[index])
+
+        } else
+            res = func(res, keys[index])
+    }
+    return res
+    // return Object.keys(nutrients).reduce(func)
+}
+*/
