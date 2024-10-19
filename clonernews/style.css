@@ -1,0 +1,51 @@
+:root {
+    --dark: "#101020"
+}
+
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 1rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.wrapper {
+    background-color: #7a6ea0;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 7px 7px 10px 0px #ccc;
+    color: #fefefe;
+}
+
+.wrapper:nth-child(2n+1) {
+    background-color: #61878b;
+}
+
+.wrapper:nth-child(3n+1) {
+    background-color: #5658b3;
+}
+
+.wrapper:nth-child(7n+1) {
+    background-color: #8d638f;
+}
+
+h2 {
+    text-transform: capitalize;
+}
+
+a {
+    display: block;
+    text-decoration: none;
+    color: #fefefe;
+    margin-top: 15px;
+}
+
+.wrapper:hover {
+    transform: translate(3px, 3px);
+    transition: transform 0.3s;
+}
