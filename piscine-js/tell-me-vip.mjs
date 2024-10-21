@@ -1,5 +1,5 @@
 import { argv } from 'node:process'
-import { readdir, readFile } from 'node:fs/promises'
+import { writeFile, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path';
 
 // let dir = argv.slice(2)
@@ -11,9 +11,7 @@ async function handleReadFile(file) {
     let content = await readFile('./guests/' + file)
 
     if (JSON.parse(content.toString()).answer == 'yes') {
-        count++
-        console.log('hi', count)
-        
+
         return true
     }
 
@@ -25,21 +23,33 @@ async function getData() {
     try {
 
         let files = await readdir('./guests')
-        files.map(elem => {
-            handleReadFile(elem) ? withYES.push(elem) : null
+        // files.map(elem => {
+        //     handleReadFile(elem) ? withYES.push(elem) : null
 
-        })
+        // })
 
-        // console.log(withYES)
 
         // (err, data) => {
         //     err ? console.log(err) : console.log(data)
 
 
-        //     for (let index = 0; index < data.length; index++) {
-        //         console.log(handleReadFile(data[index]));
+        for (let index = 0; index < files.length; index++) {
+            // console.log(handleReadFile(files[index]));
+            let content = await readFile('./guests/' + files[index])
 
-        //     }
+            if (JSON.parse(content.toString()).answer == 'yes') {
+                withYES.push(files[index])
+                // return true
+            }
+        }
+        let newData = []
+        withYES.sort().map((elem, index) => {
+            let file = elem.slice(0, elem.length - 5)
+            let line =  file.split('_')
+            newData.push(`${index+1}. ${line[1]} ${line[0]}\n`)
+        })
+        handleWrite(newData)
+        // console.log(withYES)
 
         // })
     } catch (err) {
@@ -49,6 +59,8 @@ async function getData() {
 
 }
 
-
+function handleWrite(data) {
+    writeFile('vip.txt', data)
+}
 
 getData()
