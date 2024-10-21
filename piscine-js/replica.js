@@ -10,13 +10,13 @@ function replica(target, ...source) {
                 // if (source[index] instanceof Object && !source[index] instanceof Function && !source[index] instanceof RegExp) {
                 for (const key in source[index]) {
                     //if ( source[index][key] instanceof Object) {
-                         if (!Array.isArray(source[index][key]) && source[index][key] instanceof Object) {
+                    if (!Array.isArray(source[index][key]) && source[index][key] instanceof Object) {
                         console.log(key);
-                        target[key] = replica(target[key], source[index][key])
+                        target[key] = replica(target, source[index][key])
                         // Object.assign(target[key], source[index][key])
                         // console.log('- : ', source[index][key]);
-                    } else{
-                         target[key] = source[index][key]
+                    } else {
+                        target[key] = source[index][key]
                     }
                 }
             }
@@ -37,5 +37,5 @@ function replica(target, ...source) {
 // console.log( replica({ a: { b: { c: [123, 1] } } }, { a: { b: { c: '1' } } }).a.b.c);
 // console.log(replica({ a: 2 }, { a: [4] }).a);
 // console.log(replica({ a: { b: [2] } }, { a: [4] }).a);
-console.log(replica({ a: [1, 2, 4] }, { a: { b: [4] } }));
+console.log(replica({ a: [1, 2, 4] }, { a: { b: [4] } }).a);
 // console.log(replica({ a: { b: 1, c: 2 } }, { a: { c: 23 } }));
