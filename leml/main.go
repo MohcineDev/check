@@ -2,6 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 // //Graph represents an adjacency list graph
@@ -77,19 +82,68 @@ func (g *Graph) getVertex(k int) *Vertex {
 	return nil
 }
 
-func main() {
-	test := &Graph{}
-
-	for i := 0; i < 5; i++ {
-		test.AddVertex((i))
+// ///read file & extract the start & end rooms / nodes / vertexes
+func readFile(myFile string) {
+	data, err := os.ReadFile(myFile)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	test.addEdge(1, 2)
-	test.addEdge(1, 3)
-	test.addEdge(2, 3)
-	test.addEdge(2, 4)
-	test.addEdge(1, 2)
-	test.addEdge(6, 2)
-	test.addEdge(3, 2)
-	test.Print()
-	fmt.Println("")
+
+	////spli file data with new line
+	lines := strings.Split(string(data), "\n")
+
+	///get the fisrt line / num of ants
+	num := lines[0]
+
+	// convert to int
+	start, err := strconv.Atoi(num)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("start : ", start)
+	end := 0
+	r, _ := regexp.Compile("([0-9])+\\s")
+
+	foundEnd := false
+
+	for _, v := range lines {
+		if v == "##end" {
+			foundEnd = true
+			continue
+		}
+		if foundEnd {
+			///if end is found trmi spaces and convert it to int
+			end, err = strconv.Atoi(strings.Trim(r.FindString(v), " "))
+			if err != nil {
+				printError(err)
+			}
+			break
+		} //	end = v
+
+	}
+	fmt.Println("end : ", end)
+}
+
+func printError(msg error) {
+	log.Fatalln(msg)
+}
+
+func main() {
+	// test := &Graph{}
+
+	myArgs := os.Args[1:]
+	readFile(myArgs[0])
+
+	// for i := 0; i < 5; i++ {
+	// 	test.AddVertex((i))
+	// }
+	// test.addEdge(1, 2)
+	// test.addEdge(1, 3)
+	// test.addEdge(2, 3)
+	// test.addEdge(2, 4)
+	// test.addEdge(1, 2)
+	// test.addEdge(6, 2)
+	// test.addEdge(3, 2)
+	// test.Print()
+	// fmt.Println("")
 }
