@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -60,10 +61,10 @@ func (g *Graph) addEdge(from, to int) {
 	toVertexAdd := g.getVertex(to)
 	///check errors
 	if fromVertexAdd == nil || toVertexAdd == nil {
-		err := fmt.Errorf("Invalid edge (%v --==-------==-->>> %v)", from, to)
+		err := fmt.Errorf("invalid edge (%v --==-------==-->>> %v)", from, to)
 		fmt.Println(err.Error())
 	} else if contains(fromVertexAdd.adjacent, to) {
-		err := fmt.Errorf("Edge already exist (%v --==-------==-->>> %v)", from, to)
+		err := fmt.Errorf("edge already exist (%v --==-------==-->>> %v)", from, to)
 		fmt.Println(err.Error())
 
 	} else {
@@ -89,9 +90,9 @@ func readFile(myFile string) {
 		log.Fatalln(err)
 	}
 
+	// fmt.Println(string(data))
 	////spli file data with new line
 	lines := strings.Split(string(data), "\n")
-
 	///get the fisrt line / num of ants
 	num := lines[0]
 
@@ -100,13 +101,16 @@ func readFile(myFile string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("start : ", start)
 	end := 0
 	r, _ := regexp.Compile("([0-9])+\\s")
 
 	foundEnd := false
 
 	for _, v := range lines {
+		// fmt.Println("v : ", v)
+		if v == "##start" {
+
+		}
 		if v == "##end" {
 			foundEnd = true
 			continue
@@ -119,9 +123,29 @@ func readFile(myFile string) {
 			}
 			break
 		} //	end = v
-
 	}
-	fmt.Println("end : ", end)
+
+	/////get rooms between ##start and ##end
+	roomsSlice := strings.Split(strings.Split(string(data), "##start")[1], "##end")[0]
+
+	///remove new lines in the beginning and the end
+	roomsSlice = roomsSlice[1 : len(roomsSlice)-1]
+
+	roomsWith := strings.Split(string(roomsSlice), "\n")
+
+	// fmt.Println(len(strings.Split(roomsSlice, "\n")))
+	rooms := []int{}
+
+	for _, v := range roomsWith {
+		room, err := strconv.Atoi(strings.Trim(r.FindString(v), " "))
+		if err != nil {
+			printError(err)
+		}
+		rooms = append(rooms, room)
+	}
+
+	fmt.Printf("Start : %v \nEnd : %v \n", start, end)
+	fmt.Println("rooms :", rooms)
 }
 
 func printError(msg error) {
@@ -132,6 +156,10 @@ func main() {
 	// test := &Graph{}
 
 	myArgs := os.Args[1:]
+	if len(myArgs) != 1 {
+		printError(errors.New("please enter the file."))
+	}
+
 	readFile(myArgs[0])
 
 	// for i := 0; i < 5; i++ {
