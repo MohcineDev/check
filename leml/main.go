@@ -12,30 +12,33 @@ import (
 
 // //Graph represents an adjacency list graph
 type Graph struct {
-	vertices []*Vertex
+	start int
+	end   int
+	rooms []*Room
+	// vertices []*Vertex
 }
 
 // /Vertex represents a graph vertex
-type Vertex struct {
+type Room struct {
 	key      int
-	adjacent []*Vertex
+	adjacent []*Room
 }
 
 // graph structure
 // vertex structure
 
-// add vertex / node : addds a vertex to the graph
-func (g *Graph) AddVertex(key int) {
-	if contains(g.vertices, key) {
+// add vertex / node / room : addds a vertex to the graph
+func (g *Graph) AddRoom(key int) {
+	if contains(g.rooms, key) {
 		err := fmt.Errorf("Vertex %v not added because it is an existing key", key)
 		fmt.Println(err.Error())
 	} else {
-		g.vertices = append(g.vertices, &Vertex{key: key})
+		g.rooms = append(g.rooms, &Room{key: key})
 	}
 }
 
 // /contains
-func contains(l []*Vertex, k int) bool {
+func contains(l []*Room, k int) bool {
 	for _, v := range l {
 		if k == v.key {
 			return true
@@ -46,8 +49,9 @@ func contains(l []*Vertex, k int) bool {
 
 // /print will print the adjacent list for each vertex of the graph
 func (g *Graph) Print() {
-	for _, v := range g.vertices {
-		fmt.Printf("\nVertex %v : ", v.key)
+
+	for _, v := range g.rooms {
+		fmt.Printf("\nRoom %v : ", v.key)
 		for _, v := range v.adjacent {
 			fmt.Printf(" %v ", v.key)
 		}
@@ -57,34 +61,41 @@ func (g *Graph) Print() {
 // addEdge adds an edge to the graph
 func (g *Graph) addEdge(from, to int) {
 	////get vertex address
-	fromVertexAdd := g.getVertex(from)
-	toVertexAdd := g.getVertex(to)
-	///check errors
-	if fromVertexAdd == nil || toVertexAdd == nil {
+	fromRoom := g.checkRoom(from)
+	toRoom := g.checkRoom(to)
+
+	///check if one of the rooms is not exist
+
+	if fromRoom == nil || toRoom == nil {
 		err := fmt.Errorf("invalid edge (%v --==-------==-->>> %v)", from, to)
 		fmt.Println(err.Error())
-	} else if contains(fromVertexAdd.adjacent, to) {
+		///check if the edge is already added
+	} else if contains(fromRoom.adjacent, to) {
 		err := fmt.Errorf("edge already exist (%v --==-------==-->>> %v)", from, to)
 		fmt.Println(err.Error())
 
 	} else {
 		// add the edge
-
-		fromVertexAdd.adjacent = append(fromVertexAdd.adjacent, toVertexAdd)
+		fromRoom.adjacent = append(fromRoom.adjacent, toRoom)
 	}
 }
 
-func (g *Graph) getVertex(k int) *Vertex {
-	for i, v := range g.vertices {
+// /check if room is exist
+func (g *Graph) checkRoom(k int) *Room {
+	for i, v := range g.rooms {
 		if v.key == k {
-			return g.vertices[i]
+			return g.rooms[i]
 		}
 	}
 	return nil
 }
 
 // ///read file & extract the start & end rooms / nodes / vertexes
+var myGraph = &Graph{}
+var r, _ = regexp.Compile("([0-9])+\\s")
+
 func readFile(myFile string) {
+
 	data, err := os.ReadFile(myFile)
 	if err != nil {
 		log.Fatalln(err)
@@ -101,16 +112,12 @@ func readFile(myFile string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	end := 0
-	r, _ := regexp.Compile("([0-9])+\\s")
 
+	end := 0
 	foundEnd := false
 
 	for _, v := range lines {
-		// fmt.Println("v : ", v)
-		if v == "##start" {
 
-		}
 		if v == "##end" {
 			foundEnd = true
 			continue
@@ -125,27 +132,64 @@ func readFile(myFile string) {
 		} //	end = v
 	}
 
-	/////get rooms between ##start and ##end
+	getRooms(data)
+
+	myGraph.start = start
+	myGraph.end = end
+
+	// fmt.Printf("Start / End : %+v \n", myGraph)
+	fmt.Println("myGraph.start :", myGraph.start)
+	fmt.Println("myGraph.end :", myGraph.end)
+
+	// get edges
+	edges := strings.Split(strings.Split(string(data), "##start")[1], "##end")[1]
+
+	onlyEdges := strings.Split(string(edges), "\n")[2:]
+	getEdges(onlyEdges)
+	// fmt.Println(strings.Split(string(edges), "\n"))
+
+}
+
+// /add rooms to graph
+func getRooms(data []byte) {
+	// ///get rooms between the ##start and the ##end
 	roomsSlice := strings.Split(strings.Split(string(data), "##start")[1], "##end")[0]
 
-	///remove new lines in the beginning and the end
+	// /remove new lines at the beginning and at the end of the slice
 	roomsSlice = roomsSlice[1 : len(roomsSlice)-1]
 
-	roomsWith := strings.Split(string(roomsSlice), "\n")
+	///convert it to string then split it by \n
+	roomsLine := strings.Split(string(roomsSlice), "\n")
 
 	// fmt.Println(len(strings.Split(roomsSlice, "\n")))
-	rooms := []int{}
+	// rooms := []int{}
+	myGraph.AddRoom(myGraph.start)
 
-	for _, v := range roomsWith {
+	for _, v := range roomsLine {
 		room, err := strconv.Atoi(strings.Trim(r.FindString(v), " "))
 		if err != nil {
 			printError(err)
 		}
-		rooms = append(rooms, room)
+		// rooms = append(rooms, room)
+		myGraph.AddRoom(room)
 	}
 
-	fmt.Printf("Start : %v \nEnd : %v \n", start, end)
-	fmt.Println("rooms :", rooms)
+}
+
+// /
+func getEdges(edges []string) {
+	for _, v := range edges {
+		from, err := strconv.Atoi(strings.Split(v, "-")[0])
+		if err != nil {
+			printError(err)
+		}
+		to, err := strconv.Atoi(strings.Split(v, "-")[1])
+		if err != nil {
+			printError(err)
+		}
+		// fmt.Println(from, to)
+		myGraph.addEdge(from, to)
+	}
 }
 
 func printError(msg error) {
@@ -162,9 +206,6 @@ func main() {
 
 	readFile(myArgs[0])
 
-	// for i := 0; i < 5; i++ {
-	// 	test.AddVertex((i))
-	// }
 	// test.addEdge(1, 2)
 	// test.addEdge(1, 3)
 	// test.addEdge(2, 3)
@@ -172,6 +213,6 @@ func main() {
 	// test.addEdge(1, 2)
 	// test.addEdge(6, 2)
 	// test.addEdge(3, 2)
-	// test.Print()
-	// fmt.Println("")
+	myGraph.Print()
+	fmt.Println("")
 }
