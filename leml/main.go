@@ -196,6 +196,21 @@ func printError(msg error) {
 	log.Fatalln(msg)
 }
 
+func deepFirstSearch(g *Graph, s int) {
+	stack := []int{}
+	stack = append(stack, s)
+	// for {
+	if len(stack) < 0 {
+		// break
+	}
+	room := stack[len(stack)-1]
+	fmt.Println(room)
+	for _, v := range g.rooms {
+		fmt.Println("v : ", len(v.adjacent))
+	}
+	// }
+
+}
 func main() {
 	// test := &Graph{}
 
@@ -205,7 +220,6 @@ func main() {
 	}
 
 	readFile(myArgs[0])
-
 	// test.addEdge(1, 2)
 	// test.addEdge(1, 3)
 	// test.addEdge(2, 3)
@@ -215,4 +229,6 @@ func main() {
 	// test.addEdge(3, 2)
 	myGraph.Print()
 	fmt.Println("")
+	deepFirstSearch(myGraph, 0)
+
 }
