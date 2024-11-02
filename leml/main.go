@@ -12,108 +12,101 @@ import (
 
 // //Graph represents an adjacency list graph
 type Graph struct {
-	start int
-	end   int
-	rooms []*Room
+	start     string
+	end       string
+	totalAnts int
+	rooms     []*Room
+	adjacent  map[string][]string
 	// vertices []*Vertex
 }
 
 // /Vertex represents a graph vertex
 type Room struct {
-	key      int
-	adjacent []*Room
+	key string
 }
 
 // graph structure
 // vertex structure
 
 // add vertex / node / room : addds a vertex to the graph
-func (g *Graph) AddRoom(key int) {
-	if contains(g.rooms, key) {
-		err := fmt.Errorf("Vertex %v not added because it is an existing key", key)
-		fmt.Println(err.Error())
-	} else {
-		g.rooms = append(g.rooms, &Room{key: key})
-	}
-}
-
-// /contains
-func contains(l []*Room, k int) bool {
-	for _, v := range l {
-		if k == v.key {
-			return true
-		}
-	}
-	return false
+func (g *Graph) AddRoom(key string) {
+	// if contains(g.rooms, key) {
+	// 	err := fmt.Errorf("Vertex %v not added because it is an existing key", key)
+	// 	fmt.Println(err.Error())
+	// } else {
+	g.rooms = append(g.rooms, &Room{key})
+	// }
 }
 
 // /print will print the adjacent list for each vertex of the graph
 func (g *Graph) Print() {
-
 	for _, v := range g.rooms {
 		fmt.Printf("\nRoom %v : ", v.key)
-		for _, v := range v.adjacent {
-			fmt.Printf(" %v ", v.key)
-		}
+		// for _, v := range v.adjacent {
+		// 	fmt.Printf(" %v ", v.key)
+		// }
 	}
 }
 
 // addEdge adds an edge to the graph
-func (g *Graph) addEdge(from, to int) {
+func (g *Graph) addEdge(from, to string, myMap map[string][]string) {
 	////get vertex address
 	fromRoom := g.checkRoom(from)
 	toRoom := g.checkRoom(to)
 
 	///check if one of the rooms is not exist
-
-	if fromRoom == nil || toRoom == nil {
+	if fromRoom == "_" || toRoom == "_" {
 		err := fmt.Errorf("invalid edge (%v --==-------==-->>> %v)", from, to)
 		fmt.Println(err.Error())
-		///check if the edge is already added
-	} else if contains(fromRoom.adjacent, to) {
-		err := fmt.Errorf("edge already exist (%v --==-------==-->>> %v)", from, to)
-		fmt.Println(err.Error())
 
+		///TODO : check if the edge is already added
 	} else {
+		// eedges := []string{}
+		// eedges = append(eedges, toRoom)
 		// add the edge
-		fromRoom.adjacent = append(fromRoom.adjacent, toRoom)
+
+		// m[from] = eedges
+
+		// myMap[from] = append(myMap[from], toRoom)
+		g.adjacent[from] = append(g.adjacent[from], toRoom)
+		// g.adjacent[from] = myMap[from]
 	}
 }
 
-// /check if room is exist
-func (g *Graph) checkRoom(k int) *Room {
-	for i, v := range g.rooms {
+// check if the room is exist/////
+func (g *Graph) checkRoom(k string) string {
+	for _, v := range g.rooms {
 		if v.key == k {
-			return g.rooms[i]
+			return k
 		}
 	}
-	return nil
+	return "_"
 }
 
 // ///read file & extract the start & end rooms / nodes / vertexes
-var myGraph = &Graph{}
-var r, _ = regexp.Compile("([0-9])+\\s")
+var (
+	myGraph = &Graph{}
+	r, _    = regexp.Compile("([0-9])+\\s")
+)
 
 func readFile(myFile string) {
-
 	data, err := os.ReadFile(myFile)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// fmt.Println(string(data))
 	////spli file data with new line
 	lines := strings.Split(string(data), "\n")
+
 	///get the fisrt line / num of ants
 	num := lines[0]
 
 	// convert to int
-	start, err := strconv.Atoi(num)
+	totalAnts, err := strconv.Atoi(num)
 	if err != nil {
-		log.Fatalln(err)
+		printError(err)
 	}
-
-	end := 0
+	var end string
 	foundEnd := false
 
 	for _, v := range lines {
@@ -123,31 +116,24 @@ func readFile(myFile string) {
 			continue
 		}
 		if foundEnd {
-			///if end is found trmi spaces and convert it to int
-			end, err = strconv.Atoi(strings.Trim(r.FindString(v), " "))
-			if err != nil {
-				printError(err)
-			}
+
+			///if end is found and TODO: trim spaces
+			end = r.FindString(v)
 			break
-		} //	end = v
+		}
 	}
 
 	getRooms(data)
 
-	myGraph.start = start
+	myGraph.totalAnts = totalAnts
 	myGraph.end = end
-
-	// fmt.Printf("Start / End : %+v \n", myGraph)
-	fmt.Println("myGraph.start :", myGraph.start)
-	fmt.Println("myGraph.end :", myGraph.end)
+	myGraph.AddRoom(strings.Trim(end, " "))
 
 	// get edges
 	edges := strings.Split(strings.Split(string(data), "##start")[1], "##end")[1]
 
 	onlyEdges := strings.Split(string(edges), "\n")[2:]
 	getEdges(onlyEdges)
-	// fmt.Println(strings.Split(string(edges), "\n"))
-
 }
 
 // /add rooms to graph
@@ -161,34 +147,27 @@ func getRooms(data []byte) {
 	///convert it to string then split it by \n
 	roomsLine := strings.Split(string(roomsSlice), "\n")
 
-	// fmt.Println(len(strings.Split(roomsSlice, "\n")))
-	// rooms := []int{}
-	myGraph.AddRoom(myGraph.start)
-
-	for _, v := range roomsLine {
-		room, err := strconv.Atoi(strings.Trim(r.FindString(v), " "))
-		if err != nil {
-			printError(err)
+	for i, v := range roomsLine {
+		room := r.FindString(v)
+		if i == 0 {
+			myGraph.start = room
 		}
-		// rooms = append(rooms, room)
-		myGraph.AddRoom(room)
-	}
 
+		myGraph.AddRoom(strings.Trim(room, " "))
+	}
 }
 
-// /
+// /split rooms
 func getEdges(edges []string) {
+	m := make(map[string][]string)
+
 	for _, v := range edges {
-		from, err := strconv.Atoi(strings.Split(v, "-")[0])
-		if err != nil {
-			printError(err)
-		}
-		to, err := strconv.Atoi(strings.Split(v, "-")[1])
-		if err != nil {
-			printError(err)
-		}
+		from := strings.Split(v, "-")[0]
+
+		to := strings.Split(v, "-")[1]
+
 		// fmt.Println(from, to)
-		myGraph.addEdge(from, to)
+		myGraph.addEdge(from, to, m)
 	}
 }
 
@@ -196,21 +175,39 @@ func printError(msg error) {
 	log.Fatalln(msg)
 }
 
-func deepFirstSearch(g *Graph, s int) {
-	stack := []int{}
+func deepFirstSearch(g *Graph, s string) {
+	stack := []string{}
 	stack = append(stack, s)
-	// for {
-	if len(stack) < 0 {
-		// break
-	}
-	room := stack[len(stack)-1]
-	fmt.Println(room)
-	for _, v := range g.rooms {
-		fmt.Println("v : ", len(v.adjacent))
-	}
-	// }
+	a := []string{}
 
+	for {
+		if len(stack) == 0 {
+			break
+		}
+
+		// fmt.Println("stack : ", stack)
+		room := stack[len(stack)-1]
+		fmt.Println("room : ", room)
+
+		stack = stack[:len(stack)-1]
+		// fmt.Println("stack : ", stack)
+		// fmt.Println("v : ", room, g.adjacent[room])
+		already := false
+		for _, v := range a {
+			if v == room {
+				already = true
+			}
+		}
+		if !already {
+			for _, v := range g.adjacent[room] {
+				stack = append(stack, v)
+				// fmt.Println("stack 2 : ", len(v))
+			}
+		}
+		a = append(a, room)
+	}
 }
+
 func main() {
 	// test := &Graph{}
 
@@ -218,17 +215,29 @@ func main() {
 	if len(myArgs) != 1 {
 		printError(errors.New("please enter the file."))
 	}
+	myGraph.adjacent = make(map[string][]string)
 
 	readFile(myArgs[0])
-	// test.addEdge(1, 2)
-	// test.addEdge(1, 3)
-	// test.addEdge(2, 3)
-	// test.addEdge(2, 4)
-	// test.addEdge(1, 2)
-	// test.addEdge(6, 2)
-	// test.addEdge(3, 2)
-	myGraph.Print()
-	fmt.Println("")
-	deepFirstSearch(myGraph, 0)
 
+	fmt.Println("")
+	deepFirstSearch(myGraph, "3")
+
+	// fmt.Printf("Start / End : %+v \n", myGraph)
+	// fmt.Println("myGraph.start :", myGraph.start)
+	// fmt.Println("myGraph.end :", myGraph.end)
+
+	// fmt.Println("myGraph.totalAnts :", myGraph.totalAnts)
+	// for _, v := range myGraph.adjacent {
+	// 	fmt.Println("myGraph :", v)
+	// }
+	fmt.Println(myGraph.adjacent)
+	// fmt.Println(myGraph.rooms)
+	// myGraph.PrintRooms()
+}
+
+func (g *Graph) PrintRooms() {
+	fmt.Println("Rooms in the graph : ")
+	for roomName := range g.rooms {
+		fmt.Println(roomName)
+	}
 }
