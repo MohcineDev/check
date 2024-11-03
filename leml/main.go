@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -49,7 +50,7 @@ func (g *Graph) Print() {
 }
 
 // addEdge adds an edge to the graph
-func (g *Graph) addEdge(from, to string, myMap map[string][]string) {
+func (g *Graph) addEdge(from, to string) {
 	////get vertex address
 	fromRoom := g.checkRoom(from)
 	toRoom := g.checkRoom(to)
@@ -61,15 +62,24 @@ func (g *Graph) addEdge(from, to string, myMap map[string][]string) {
 
 		///TODO : check if the edge is already added
 	} else {
-		// eedges := []string{}
-		// eedges = append(eedges, toRoom)
+
 		// add the edge
 
-		// m[from] = eedges
-
-		// myMap[from] = append(myMap[from], toRoom)
 		g.adjacent[from] = append(g.adjacent[from], toRoom)
-		// g.adjacent[from] = myMap[from]
+		g.adjacent[toRoom] = append(g.adjacent[toRoom], from)
+
+	}
+}
+
+func getEdges(edges []string) {
+	for _, v := range edges {
+
+		res := strings.Split(v, "-")
+		from := res[0]
+		to := res[1]
+
+		// fmt.Println(from, to)
+		myGraph.addEdge(from, to)
 	}
 }
 
@@ -157,60 +167,70 @@ func getRooms(data []byte) {
 	}
 }
 
-// /split rooms
-func getEdges(edges []string) {
-	m := make(map[string][]string)
-
-	for _, v := range edges {
-		from := strings.Split(v, "-")[0]
-
-		to := strings.Split(v, "-")[1]
-
-		// fmt.Println(from, to)
-		myGraph.addEdge(from, to, m)
-	}
-}
-
 func printError(msg error) {
 	log.Fatalln(msg)
 }
 
-func deepFirstSearch(g *Graph, s string) {
-	stack := []string{}
-	stack = append(stack, s)
-	a := []string{}
+func (g *Graph) SortAdjacencyLists() {
+	for k := range g.adjacent {
+		sort.Strings(g.adjacent[k])
+	}
+}
 
-	for {
-		if len(stack) == 0 {
-			break
-		}
+var (
+	visited = make(map[string]bool)
+	stack   = []string{}
+)
 
-		// fmt.Println("stack : ", stack)
+func deepFirstSearch(g *Graph, s string, stack []string) {
+	// if visited[s] {
+	// 	return
+	// }
+
+	// visited[s] = true
+
+	// fmt.Printf("%s ", s)
+
+	// for _, neighbor := range g.adjacent[s] {
+	// 	if !visited[neighbor] {
+	// 		deepFirstSearch(g, neighbor)
+	// 	}
+	// }
+
+	/*stack = append(stack, s)
+
+	// to track the visited
+	vis := make(map[string]bool)
+
+	for len(stack) > 0 {
+
 		room := stack[len(stack)-1]
-		fmt.Println("room : ", room)
-
 		stack = stack[:len(stack)-1]
-		// fmt.Println("stack : ", stack)
-		// fmt.Println("v : ", room, g.adjacent[room])
-		already := false
-		for _, v := range a {
-			if v == room {
-				already = true
-			}
-		}
-		if !already {
+
+		if !vis[room] {
+
+			// mark this room as visited
+			vis[room] = true
+			fmt.Printf("%s ", room)
+
 			for _, v := range g.adjacent[room] {
 				stack = append(stack, v)
-				// fmt.Println("stack 2 : ", len(v))
 			}
 		}
-		a = append(a, room)
+	}*/
+
+	visited[s] = true
+	stack = append(stack, s)
+	fmt.Printf("%s ", s)
+
+	for _, v := range g.adjacent[s] {
+		if !visited[v] {
+			deepFirstSearch(g, v, stack)
+		}
 	}
 }
 
 func main() {
-	// test := &Graph{}
-
 	myArgs := os.Args[1:]
 	if len(myArgs) != 1 {
 		printError(errors.New("please enter the file."))
@@ -219,20 +239,20 @@ func main() {
 
 	readFile(myArgs[0])
 
+	myGraph.SortAdjacencyLists()
+	deepFirstSearch(myGraph, "3", stack)
 	fmt.Println("")
-	deepFirstSearch(myGraph, "3")
 
-	// fmt.Printf("Start / End : %+v \n", myGraph)
 	// fmt.Println("myGraph.start :", myGraph.start)
 	// fmt.Println("myGraph.end :", myGraph.end)
 
 	// fmt.Println("myGraph.totalAnts :", myGraph.totalAnts)
-	// for _, v := range myGraph.adjacent {
-	// 	fmt.Println("myGraph :", v)
-	// }
-	fmt.Println(myGraph.adjacent)
+	for i_, v := range myGraph.adjacent {
+		fmt.Println("myGraph :", i_, v)
+	}
+	// fmt.Println(myGraph.adjacent)
 	// fmt.Println(myGraph.rooms)
-	// myGraph.PrintRooms()
+	//	myGraph.PrintRooms()
 }
 
 func (g *Graph) PrintRooms() {
