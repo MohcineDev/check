@@ -200,7 +200,7 @@ func main() {
 	paths := myGraph.deepFirstSearch()
 	for _, v := range paths {
 		if v[len(v)-1] == "0" {
-			
+
 			fmt.Println(v)
 		}
 	}
@@ -211,7 +211,7 @@ func main() {
 
 	// fmt.Println("myGraph.totalAnts :", myGraph.totalAnts)
 	for i, v := range myGraph.adjacent {
-		fmt.Println("myGraph :", i, v)
+		fmt.Println("- adjacent of", i, ":", v)
 	}
 	// fmt.Println(myGraph.adjacent)
 	// fmt.Println(myGraph.rooms)
