@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -189,6 +190,51 @@ func (g *Graph) deepFirstSearch() [][]string {
 	return stack
 }
 
+var (
+	validRoutes = [][]string{}
+	scores      = []int{}
+)
+
+func filterRoutes(routes [][]string) {
+	sort.Slice(routes, func(i, j int) bool {
+		return len(routes[i]) < len(routes[j])
+	})
+
+	for i, v := range routes {
+		compareRout(v, routes, i)
+		// fmt.Println(v)
+	}
+	for i := 0; i < len(scores); i++ {
+		smallIndex := 0
+		if scores[i] < scores[smallIndex] && scores[i] != -1 {
+			scores[i] = -1
+			
+		}
+	}
+
+	fmt.Println(scores)
+}
+
+func compareRout(route []string, routes [][]string, currentRouteIndex int) {
+	count := 0
+	for i, v := range routes {
+
+		if i == currentRouteIndex {
+			continue
+		}
+		m := len(v)
+		if m > len(route) {
+			m = len(route)
+		}
+		for j := 1; j < m-1; j++ {
+			if route[j] == v[j] {
+				count++
+			}
+		}
+	}
+	scores = append(scores, count)
+}
+
 func main() {
 	myArgs := os.Args[1:]
 	if len(myArgs) != 1 {
@@ -198,20 +244,22 @@ func main() {
 
 	readFile(myArgs[0])
 	paths := myGraph.deepFirstSearch()
+	validRoutes := [][]string{}
+
 	for _, v := range paths {
 		if v[len(v)-1] == "0" {
-
-			fmt.Println(v)
+			validRoutes = append(validRoutes, v)
+			// fmt.Println(v)
 		}
 	}
 	fmt.Println("")
-
+	filterRoutes(validRoutes)
 	// fmt.Println("myGraph.start :", myGraph.start)
 	// fmt.Println("myGraph.end :", myGraph.end)
 
 	// fmt.Println("myGraph.totalAnts :", myGraph.totalAnts)
 	for i, v := range myGraph.adjacent {
-		fmt.Println("- adjacent of", i, ":", v)
+		fmt.Println("myGraph :", i, v)
 	}
 	// fmt.Println(myGraph.adjacent)
 	// fmt.Println(myGraph.rooms)
