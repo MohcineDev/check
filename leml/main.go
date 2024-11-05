@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -196,23 +195,30 @@ var (
 )
 
 func filterRoutes(routes [][]string) {
-	sort.Slice(routes, func(i, j int) bool {
-		return len(routes[i]) < len(routes[j])
-	})
+	// sort.Slice(routes, func(i, j int) bool {
+	// 	return len(routes[i]) < len(routes[j])
+	// })
 
 	for i, v := range routes {
 		compareRout(v, routes, i)
-		// fmt.Println(v)
+		fmt.Println(v)
 	}
-	for i := 0; i < len(scores); i++ {
-		smallIndex := 0
-		if scores[i] < scores[smallIndex] && scores[i] != -1 {
-			scores[i] = -1
-			
+	fmt.Println(scores)
+
+	for i := 0; i < len(scores)-1; i++ {
+		for j := i + 1; j < len(scores); j++ {
+			if scores[i] > scores[j] {
+				scores[i], scores[j] = scores[j], scores[i]
+				routes[i], routes[j] = routes[j], routes[i]
+			}
 		}
 	}
 
 	fmt.Println(scores)
+	fmt.Println("")
+	for _, v := range routes {
+		fmt.Println(v)
+	}
 }
 
 func compareRout(route []string, routes [][]string, currentRouteIndex int) {
@@ -222,13 +228,15 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 		if i == currentRouteIndex {
 			continue
 		}
-		m := len(v)
-		if m > len(route) {
-			m = len(route)
-		}
-		for j := 1; j < m-1; j++ {
-			if route[j] == v[j] {
-				count++
+		// m := len(v)
+		// if m > len(route) {
+		// 	m = len(route)
+		// }
+		for j := 1; j < len(route)-1; j++ {
+			for k := 1; k < len(v)-1; k++ {
+				if route[j] == v[k] {
+					count++
+				}
 			}
 		}
 	}
@@ -256,11 +264,12 @@ func main() {
 	filterRoutes(validRoutes)
 	// fmt.Println("myGraph.start :", myGraph.start)
 	// fmt.Println("myGraph.end :", myGraph.end)
-
 	// fmt.Println("myGraph.totalAnts :", myGraph.totalAnts)
-	for i, v := range myGraph.adjacent {
-		fmt.Println("myGraph :", i, v)
-	}
+
+	// 	//print adjacent
+	// for i, v := range myGraph.adjacent {
+	// 	fmt.Println("myGraph :", i, v)
+	// }
 	// fmt.Println(myGraph.adjacent)
 	// fmt.Println(myGraph.rooms)
 	//	myGraph.PrintRooms()
