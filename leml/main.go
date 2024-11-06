@@ -193,6 +193,7 @@ var (
 	validRoutes = [][]string{}
 	scores      = []int{}
 )
+var routCombs = [][]string{}
 
 func filterRoutes(routes [][]string) {
 	// sort.Slice(routes, func(i, j int) bool {
@@ -216,8 +217,23 @@ func filterRoutes(routes [][]string) {
 
 	fmt.Println(scores)
 	fmt.Println("")
+
 	for _, v := range routes {
 		fmt.Println(v)
+	}
+	firstRoute := routes[0]
+	routCombs = append(routCombs, routes[0])
+	// for i := 0; i < len()
+	b, path := getRoutesComb(firstRoute, routes)
+	if b {
+		// fmt.Println("ddwed")
+		for i := 0; i < len(path); i++ {
+			routCombs = append(routCombs, path[i])
+		}
+	}
+	fmt.Println(len(routCombs))
+	for _, v := range routCombs {
+		fmt.Println("--  : ", v)
 	}
 }
 
@@ -228,10 +244,7 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 		if i == currentRouteIndex {
 			continue
 		}
-		// m := len(v)
-		// if m > len(route) {
-		// 	m = len(route)
-		// }
+
 		for j := 1; j < len(route)-1; j++ {
 			for k := 1; k < len(v)-1; k++ {
 				if route[j] == v[k] {
@@ -241,6 +254,31 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 		}
 	}
 	scores = append(scores, count)
+}
+
+// ///
+func getRoutesComb(route []string, routes [][]string) (bool, [][]string) {
+	var path [][]string
+	// path := make([][]string)
+	for i := 1; i < len(routes); i++ {
+		a := false
+
+		for i := 0; i < len(route); i++ {
+			 
+		}
+		for j := 1; j < len(route)-1; j++ {
+			for k := 0; k < len(routes[i]); k++ {
+				if routes[i][k] == route[j] {
+					
+					a = true
+				}
+			}
+		}
+		if !a  {
+			path = append(path, routes[i])
+		}
+	}
+	return true, path
 }
 
 func main() {
@@ -256,6 +294,7 @@ func main() {
 
 	for _, v := range paths {
 		if v[len(v)-1] == "0" {
+			/// only paths that end with 0
 			validRoutes = append(validRoutes, v)
 			// fmt.Println(v)
 		}
