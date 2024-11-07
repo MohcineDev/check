@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -171,22 +170,19 @@ func (g *Graph) deepFirstSearch() [][]string {
 
 	getPaths = func(path []string, room string) {
 		///if room eq end
-
 		if room == g.end {
-			stack = append(stack, path)
+			M := []string{}
+
+			M = append(M, path...)
+			///append the path directly to the slice makes a prb removes 0 at the end...
+			stack = append(stack, M)
 			return
 		}
 
 		visited[room] = true
-
 		for _, v := range g.adjacent[room] {
 			if !visited[v] {
-				// fmt.Println("!visited[v]  : ", v)
 				getPaths(append(path, v), v)
-				if v == "0" {
-					stack = append(stack, path)
-
-				}
 			}
 		}
 		visited[room] = false
@@ -203,12 +199,12 @@ var (
 var routCombs = [][]string{}
 
 func filterRoutes(routes [][]string) {
-	sort.Slice(routes, func(i, j int) bool {
-		return len(routes[i]) < len(routes[j])
-	})
-	for _, v := range routes {
-		fmt.Println(v)
-	}
+	// sort.Slice(routes, func(i, j int) bool {
+	// 	return len(routes[i]) < len(routes[j])
+	// })
+	// for _, v := range routes {
+	// 	//fmt.Println(v)
+	// }
 	for i, v := range routes {
 		compareRout(v, routes, i)
 		// fmt.Println(v)
@@ -238,9 +234,9 @@ func filterRoutes(routes [][]string) {
 			routCombs = append(routCombs, path[i])
 		}
 	}
-	for _, v := range routCombs {
-		fmt.Println("--  : ", v)
-	}
+	// for _, v := range routCombs {
+	// 	  fmt.Println("--  : ", v)
+	// }
 }
 
 func compareRout(route []string, routes [][]string, currentRouteIndex int) {
@@ -291,16 +287,17 @@ func main() {
 	myGraph.adjacent = make(map[string][]string)
 
 	readFile(myArgs[0])
+
 	paths := myGraph.deepFirstSearch()
 	validRoutes := [][]string{}
 
 	for _, v := range paths {
-		// fmt.Println(v)
-		// if v[len(v)-1] == "0" {
-		/// only paths that end with 0
-		validRoutes = append(validRoutes, v)
-		// fmt.Println(v)
-		// }
+		fmt.Println(v)
+		if v[len(v)-1] == "0" {
+			/// only paths that end with 0
+			validRoutes = append(validRoutes, v)
+			 fmt.Println(v)
+		}
 	}
 	fmt.Println("")
 	filterRoutes(validRoutes)
