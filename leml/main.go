@@ -174,7 +174,7 @@ func (g *Graph) deepFirstSearch() [][]string {
 			M := []string{}
 
 			M = append(M, path...)
-			///append the path directly to the slice makes a prb removes 0 at the end...
+			///append the path directly to the stack makes a prb removes 0 at the end...
 			stack = append(stack, M)
 			return
 		}
@@ -202,14 +202,13 @@ func filterRoutes(routes [][]string) {
 	// sort.Slice(routes, func(i, j int) bool {
 	// 	return len(routes[i]) < len(routes[j])
 	// })
-	// for _, v := range routes {
-	// 	//fmt.Println(v)
-	// }
+
 	for i, v := range routes {
-		compareRout(v, routes, i)
 		// fmt.Println(v)
+		compareRout(v, routes, i)
 	}
 
+	///sort the scores and routes slices cuz they have the same length
 	for i := 0; i < len(scores)-1; i++ {
 		for j := i + 1; j < len(scores); j++ {
 			if scores[i] > scores[j] {
@@ -221,32 +220,44 @@ func filterRoutes(routes [][]string) {
 
 	fmt.Println("")
 
-	// for _, v := range routes {
-	// 	fmt.Println(v)
-	// }
+	for _, v := range routes {
+		fmt.Println("-: ", v)
+	}
+
 	firstRoute := routes[0]
 	routCombs = append(routCombs, routes[0])
-	// for i := 0; i < len()
-	b, path := getRoutesComb(firstRoute, routes)
-	if b {
-		// fmt.Println("ddwed")
-		for i := 0; i < len(path); i++ {
-			routCombs = append(routCombs, path[i])
-		}
-	}
-	// for _, v := range routCombs {
-	// 	  fmt.Println("--  : ", v)
+
+	path := getRoutesComb(firstRoute, routes)
+	// count := 1
+
+	// for count < len(path) {
+	// 	routCombs = append(routCombs, path[0])
+
+	// 	for j := 0; j < len(path); j++ {
+	// 		path = getRoutesComb(path[j], routes)
+	// 	}
+	// 	count++
 	// }
+
+	for i := 0; i < len(path); i++ {
+		routCombs = append(routCombs, path[i])
+	}
+
+	 
+	for _, v := range routCombs {
+		fmt.Println("++  : ", v)
+	}
 }
 
 func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 	count := 0
+
 	for i, v := range routes {
 
 		if i == currentRouteIndex {
 			continue
 		}
-
+		///exclude the start and the end rooms from the comparaison
 		for j := 1; j < len(route)-1; j++ {
 			for k := 1; k < len(v)-1; k++ {
 				if route[j] == v[k] {
@@ -259,24 +270,25 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 }
 
 // ///
-func getRoutesComb(route []string, routes [][]string) (bool, [][]string) {
+func getRoutesComb(route []string, routes [][]string) [][]string {
 	var path [][]string
-	// path := make([][]string)
+
 	for i := 1; i < len(routes); i++ {
 		a := false
 
 		for j := 1; j < len(route)-1; j++ {
-			for k := 0; k < len(routes[i]); k++ {
+			for k := 1; k < len(routes[i])-1; k++ {
 				if routes[i][k] == route[j] {
 					a = true
 				}
 			}
 		}
+
 		if !a {
 			path = append(path, routes[i])
 		}
 	}
-	return true, path
+	return path
 }
 
 func main() {
@@ -296,14 +308,10 @@ func main() {
 		if v[len(v)-1] == "0" {
 			/// only paths that end with 0
 			validRoutes = append(validRoutes, v)
-			 fmt.Println(v)
 		}
 	}
 	fmt.Println("")
 	filterRoutes(validRoutes)
-	// fmt.Println("myGraph.start :", myGraph.start)
-	// fmt.Println("myGraph.end :", myGraph.end)
-	// fmt.Println("myGraph.totalAnts :", myGraph.totalAnts)
 
 	// 	//print adjacent
 	for i, v := range myGraph.adjacent {
