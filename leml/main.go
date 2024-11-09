@@ -56,8 +56,7 @@ func (g *Graph) addEdge(from, to string) {
 		///TODO : check if the edge is already added
 	} else {
 
-		// add the edge
-
+		// add the edge for both rooms
 		g.adjacent[from] = append(g.adjacent[from], toRoom)
 		g.adjacent[toRoom] = append(g.adjacent[toRoom], from)
 
@@ -68,7 +67,7 @@ func getEdges(edges []string) {
 	for _, v := range edges {
 
 		res := strings.Split(v, "-")
-		fmt.Println(res)
+
 		from := res[0]
 		to := res[1]
 
@@ -141,17 +140,17 @@ func readFile(myFile string) {
 	myGraph.totalAnts = totalAnts
 
 	// get edges
-	edges := strings.Split(strings.Split(string(data), "##start")[1], "##end")[1]
+	edges := strings.Split(string(data), "##end")[1]
 
-	onlyEdges := strings.Split(string(edges), "\n")[2:]
-	roomDashRoom := []string{}
-	for _, v := range onlyEdges {
+	onlyEdges := []string{}
+
+	for _, v := range strings.Split(edges, "\n") {
 		if strings.Contains(v, "-") {
-			roomDashRoom = append(roomDashRoom, v)
+			onlyEdges = append(onlyEdges, v)
 		}
 	}
-	// fmt.Println(roomDashRoom)
-	getEdges(roomDashRoom)
+	// fmt.Println(onlyEdges)
+	getEdges(onlyEdges)
 }
 
 // /add rooms to graph
@@ -175,14 +174,14 @@ func (g *Graph) deepFirstSearch() [][]string {
 	visited := make(map[string]bool)
 
 	var getPaths func(path []string, room string)
-
+//0 2 1 
 	getPaths = func(path []string, room string) {
 		///if room eq end
 		if room == g.end {
 			M := []string{}
-
 			M = append(M, path...)
-			///append the path directly to the stack makes a prb removes 0 at the end...
+
+			///append the path directly to the stack makes a prb removes end room from the end...
 			stack = append(stack, M)
 			return
 		}
@@ -207,12 +206,7 @@ var (
 var routCombs = [][]string{}
 
 func filterRoutes(routes [][]string) {
-	// sort.Slice(routes, func(i, j int) bool {
-	// 	return len(routes[i]) < len(routes[j])
-	// })
-
 	for i, v := range routes {
-		// fmt.Println(v)
 		compareRout(v, routes, i)
 	}
 
@@ -225,8 +219,6 @@ func filterRoutes(routes [][]string) {
 			}
 		}
 	}
-
-	fmt.Println("")
 
 	for _, v := range routes {
 		fmt.Println(v)
@@ -296,33 +288,33 @@ func main() {
 	myGraph.adjacent = make(map[string][]string)
 
 	readFile(myArgs[0])
+	// print adjacent
+	for i, v := range myGraph.adjacent {
+		fmt.Println("adjacents of :", i, "are : ", v)
+	}
 
 	paths := myGraph.deepFirstSearch()
+	fmt.Println("DFS : ", paths)
+
 	validRoutes := [][]string{}
 
 	for _, v := range paths {
-		fmt.Println(v)
-		if v[len(v)-1] == "0" {
-			/// only paths that end with 0
+		if v[len(v)-1] == myGraph.end {
+			/// only paths that end with myGraph.end room
 			validRoutes = append(validRoutes, v)
 		}
 	}
 	fmt.Println("")
 	filterRoutes(validRoutes)
 
-	// 	//print adjacent
-	// for i, v := range myGraph.adjacent {
-	// fmt.Println("myGraph :", i, v)
-	// }
-	// fmt.Println("start : ", myGraph.start)
-	// fmt.Println("end : ", myGraph.end)
-	// fmt.Println("totalAnts : ", myGraph.totalAnts)
-	// fmt.Println(myGraph.adjacent)
-	//  fmt.Println(myGraph.rooms)
-	myGraph.PrintRooms()
+	//   fmt.Println(myGraph.adjacent)
+	  myGraph.PrintRooms()
 }
 
 func (g *Graph) PrintRooms() {
+	fmt.Println("totalAnts : ", myGraph.totalAnts)
+	fmt.Println("start : ", myGraph.start)
+	fmt.Println("end : ", myGraph.end)
 	fmt.Println("Rooms in the graph : ")
 	for roomName := range g.rooms {
 		fmt.Println("roomName: ", roomName)
