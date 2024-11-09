@@ -3,12 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"lem/inter"
 	"log"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"lem-in/inter"
 )
 
 // //Graph represents an adjacency list graph
@@ -88,7 +89,8 @@ func (g *Graph) checkRoom(k string) string {
 // ///read file & extract the start & end rooms / nodes / vertexes
 var (
 	myGraph = &Graph{}
-	r, _    = regexp.Compile("([0-9])+\\s")
+	r, _    = regexp.Compile(`([0-9])+\s`)
+	reg, _  = regexp.Compile(`[a-zA-Z0-9]+\s[0-9]+\s[0-9]+`)
 )
 
 func readFile(myFile string) {
@@ -108,19 +110,28 @@ func readFile(myFile string) {
 	if err != nil {
 		printError(err)
 	}
-	var end string
+
 	foundEnd := false
+	foundStart := false
 
 	for _, v := range lines {
+
+		if v == "##start" {
+			foundStart = true
+			continue
+		}
+		if foundStart {
+			myGraph.start = strings.Trim(r.FindString(v), " ")
+			foundStart = false
+		}
 
 		if v == "##end" {
 			foundEnd = true
 			continue
 		}
 		if foundEnd {
-
-			///if end is found and TODO: trim spaces
-			end = r.FindString(v)
+			myGraph.end = strings.Trim(r.FindString(v), " ")
+			foundEnd = false
 			break
 		}
 	}
@@ -128,8 +139,6 @@ func readFile(myFile string) {
 	getRooms(data)
 
 	myGraph.totalAnts = totalAnts
-	myGraph.end = strings.Trim(end, " ")
-	myGraph.AddRoom(strings.Trim(end, " "))
 
 	// get edges
 	edges := strings.Split(strings.Split(string(data), "##start")[1], "##end")[1]
@@ -147,22 +156,12 @@ func readFile(myFile string) {
 
 // /add rooms to graph
 func getRooms(data []byte) {
-	// ///get rooms between the ##start and the ##end
-	roomsSlice := strings.Split(strings.Split(string(data), "##start")[1], "##end")[0]
-	fmt.Println("roomsSlice : ", roomsSlice)
-	// /remove new lines at the beginning and at the end of the slice
-	roomsSlice = roomsSlice[1 : len(roomsSlice)-1]
-
-	///convert it to string then split it by \n
-	roomsLine := strings.Split(string(roomsSlice), "\n")
-
-	for i, v := range roomsLine {
-		room := r.FindString(v)
-		if i == 0 {
-			myGraph.start = strings.Trim(room, " ")
+	for _, v := range strings.Split(string(data), "\n") {
+		if !strings.HasPrefix(v, "##start") && !strings.HasPrefix(v, "##end") {
+			if reg.MatchString(v) {
+				myGraph.AddRoom(strings.Split(v, " ")[0])
+			}
 		}
-
-		myGraph.AddRoom(strings.Trim(room, " "))
 	}
 }
 
@@ -312,17 +311,20 @@ func main() {
 	filterRoutes(validRoutes)
 
 	// 	//print adjacent
-	for i, v := range myGraph.adjacent {
-		fmt.Println("myGraph :", i, v)
-	}
+	// for i, v := range myGraph.adjacent {
+	// fmt.Println("myGraph :", i, v)
+	// }
+	// fmt.Println("start : ", myGraph.start)
+	// fmt.Println("end : ", myGraph.end)
+	// fmt.Println("totalAnts : ", myGraph.totalAnts)
 	// fmt.Println(myGraph.adjacent)
-	// fmt.Println(myGraph.rooms)
+	//  fmt.Println(myGraph.rooms)
 	myGraph.PrintRooms()
 }
 
 func (g *Graph) PrintRooms() {
 	fmt.Println("Rooms in the graph : ")
 	for roomName := range g.rooms {
-		fmt.Println(roomName)
+		fmt.Println("roomName: ", roomName)
 	}
 }
