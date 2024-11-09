@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"lem/inter"
 	"log"
 	"os"
 	"regexp"
@@ -66,6 +67,7 @@ func getEdges(edges []string) {
 	for _, v := range edges {
 
 		res := strings.Split(v, "-")
+		fmt.Println(res)
 		from := res[0]
 		to := res[1]
 
@@ -133,14 +135,21 @@ func readFile(myFile string) {
 	edges := strings.Split(strings.Split(string(data), "##start")[1], "##end")[1]
 
 	onlyEdges := strings.Split(string(edges), "\n")[2:]
-	getEdges(onlyEdges)
+	roomDashRoom := []string{}
+	for _, v := range onlyEdges {
+		if strings.Contains(v, "-") {
+			roomDashRoom = append(roomDashRoom, v)
+		}
+	}
+	// fmt.Println(roomDashRoom)
+	getEdges(roomDashRoom)
 }
 
 // /add rooms to graph
 func getRooms(data []byte) {
 	// ///get rooms between the ##start and the ##end
 	roomsSlice := strings.Split(strings.Split(string(data), "##start")[1], "##end")[0]
-
+	fmt.Println("roomsSlice : ", roomsSlice)
 	// /remove new lines at the beginning and at the end of the slice
 	roomsSlice = roomsSlice[1 : len(roomsSlice)-1]
 
@@ -221,32 +230,21 @@ func filterRoutes(routes [][]string) {
 	fmt.Println("")
 
 	for _, v := range routes {
-		fmt.Println("-: ", v)
+		fmt.Println(v)
 	}
+	fmt.Println(inter.FindNonIntersectingPaths(routes))
+	// firstRoute := routes[0]
+	// routCombs = append(routCombs, routes[0])
 
-	firstRoute := routes[0]
-	routCombs = append(routCombs, routes[0])
+	// path := getRoutesComb(firstRoute, routes)
 
-	path := getRoutesComb(firstRoute, routes)
-	// count := 1
-
-	// for count < len(path) {
-	// 	routCombs = append(routCombs, path[0])
-
-	// 	for j := 0; j < len(path); j++ {
-	// 		path = getRoutesComb(path[j], routes)
-	// 	}
-	// 	count++
+	// for i := 0; i < len(path); i++ {
+	// 	routCombs = append(routCombs, path[i])
 	// }
 
-	for i := 0; i < len(path); i++ {
-		routCombs = append(routCombs, path[i])
-	}
-
-	 
-	for _, v := range routCombs {
-		fmt.Println("++  : ", v)
-	}
+	// for _, v := range routCombs {
+	// 	fmt.Println("++  : ", v)
+	// }
 }
 
 func compareRout(route []string, routes [][]string, currentRouteIndex int) {
@@ -319,7 +317,7 @@ func main() {
 	}
 	// fmt.Println(myGraph.adjacent)
 	// fmt.Println(myGraph.rooms)
-	//	myGraph.PrintRooms()
+	myGraph.PrintRooms()
 }
 
 func (g *Graph) PrintRooms() {
