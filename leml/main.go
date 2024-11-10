@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"lem-in/inter"
+	"lem/inter"
 )
 
 // //Graph represents an adjacency list graph
