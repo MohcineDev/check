@@ -1,13 +1,5 @@
 package inter
 
-// Sample paths (replace with actual paths)
-// var paths = [][]string{
-// 	{1, 3, 4, 0},
-// 	{1, 2, 4, 0},
-// 	{1, 3, 5, 6, 0},
-// 	{1, 2, 7, 6, 0},
-// }
-
 // Function to check if two paths intersect
 func pathsIntersect(path1, path2 []string) bool {
 	// Create a map to store rooms in path1 (ignoring start and end rooms)
@@ -26,32 +18,26 @@ func pathsIntersect(path1, path2 []string) bool {
 }
 
 // Function to find non-intersecting paths
-func FindNonIntersectingPaths(paths [][]string) [][]string {
+func FindUniquePaths(paths [][]string) [][]string {
 	// Result to store non-intersecting paths
-	var nonIntersectingPaths [][]string
+	var uniquePaths [][]string
 
 	// Loop over each path
 	for i := 0; i < len(paths); i++ {
-		isNonIntersecting := true
+		unique := true
 
-		// Check if this path intersects with any in nonIntersectingPaths
-		for j := 0; j < len(nonIntersectingPaths); j++ {
-			if pathsIntersect(paths[i], nonIntersectingPaths[j]) {
-				isNonIntersecting = false
+		// Check if this path intersects with any in uniquePaths
+		for j := 0; j < len(uniquePaths); j++ {
+			if pathsIntersect(paths[i], uniquePaths[j]) {
+				unique = false
 				break
 			}
 		}
 
 		// If it doesn't intersect, add it to the result
-		if isNonIntersecting {
-			nonIntersectingPaths = append(nonIntersectingPaths, paths[i])
+		if unique {
+			uniquePaths = append(uniquePaths, paths[i])
 		}
 	}
-	return nonIntersectingPaths
-}
-
-// func mainx() {
-// 	// Find and print non-intersecting paths
-// 	result := findNonIntersectingPaths(paths)
-// 	fmt.Println("Non-intersecting paths:", result)
-// }
+	return uniquePaths
+} 

@@ -27,40 +27,76 @@ type Room struct {
 	key string
 }
 
-// graph structure
-// vertex structure
+var (
+	myGraph   = &Graph{}
+	r, _      = regexp.Compile(`([0-9])+\s`)
+	dataLines = []string{}
+)
 
-// add vertex / node / room : addds a vertex to the graph
-func (g *Graph) AddRoom(key string) {
-	g.rooms = append(g.rooms, &Room{key})
-}
-
-// /print will print the adjacent list for each vertex of the graph
-func (g *Graph) Print() {
-	for _, v := range g.rooms {
-		fmt.Printf("\nRoom %v : ", v.key)
+// ///read file & extract the start & end rooms / nodes / vertexes
+func readFile(myFile string) {
+	data, err := os.ReadFile(myFile)
+	if err != nil {
+		log.Fatalln(err)
 	}
-}
 
-// addEdge adds an edge to the graph
-func (g *Graph) addEdge(from, to string) {
-	////get vertex address
-	fromRoom := g.checkRoom(from)
-	toRoom := g.checkRoom(to)
+	////split file data with new line
+	dataLines = strings.Split(string(data), "\n")
 
-	///check if one of the rooms is not exist
-	if fromRoom == "_" || toRoom == "_" {
-		err := fmt.Errorf("invalid edge (%v --==-------==-->>> %v)", from, to)
-		fmt.Println(err.Error())
-
-		///TODO : check if the edge is already added
-	} else {
-
-		// add the edge for both rooms
-		g.adjacent[from] = append(g.adjacent[from], toRoom)
-		g.adjacent[toRoom] = append(g.adjacent[toRoom], from)
-
+	///get the fisrt line / total of ants  // convert it to int
+	totalAnts, err := strconv.Atoi(dataLines[0])
+	if err != nil {
+		printError(errors.New("invalid Ants count"))
 	}
+	myGraph.totalAnts = totalAnts
+
+	///get start and end rooms
+	foundEnd := false
+	foundStart := false
+
+	for _, value := range dataLines {
+		room := strings.Trim(r.FindString(value), " ")
+
+		if value == "##start" {
+			foundStart = true
+			continue
+		}
+
+		if foundStart {
+			myGraph.start = room
+			foundStart = false
+			if len(myGraph.start) < 1 {
+				printError(errors.New("starting room not found"))
+			}
+		}
+
+		if value == "##end" {
+			foundEnd = true
+			continue
+		}
+
+		if foundEnd {
+			myGraph.end = room
+			foundEnd = false
+			if len(myGraph.end) < 1 {
+				printError(errors.New("ending room not found"))
+			}
+			break
+		}
+	}
+
+	// get edges after ##end flag
+	edges := strings.Split(string(data), "##end")[1]
+
+	onlyEdges := []string{}
+
+	for _, v := range strings.Split(edges, "\n") {
+		if strings.Contains(v, "-") {
+			onlyEdges = append(onlyEdges, v)
+		}
+	}
+	// fmt.Println(onlyEdges)
+	getEdges(onlyEdges)
 }
 
 func getEdges(edges []string) {
@@ -75,87 +111,21 @@ func getEdges(edges []string) {
 	}
 }
 
-// check if the room is exist/////
-func (g *Graph) checkRoom(k string) string {
-	for _, v := range g.rooms {
-		if v.key == k {
-			return k
-		}
-	}
-	return "_"
-}
+// addEdge adds an edge to the graph
+func (g *Graph) addEdge(from, to string) {
+	///TODO : check if one of the rooms is not exist
+	/// check if the edge is already added
 
-// ///read file & extract the start & end rooms / nodes / vertexes
-var (
-	myGraph = &Graph{}
-	r, _    = regexp.Compile(`([0-9])+\s`)
-	reg, _  = regexp.Compile(`[a-zA-Z0-9]+\s[0-9]+\s[0-9]+`)
-)
-
-func readFile(myFile string) {
-	data, err := os.ReadFile(myFile)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	////spli file data with new line
-	lines := strings.Split(string(data), "\n")
-
-	///get the fisrt line / num of ants
-	num := lines[0]
-
-	// convert to int
-	totalAnts, err := strconv.Atoi(num)
-	if err != nil {
-		printError(err)
-	}
-
-	foundEnd := false
-	foundStart := false
-
-	for _, v := range lines {
-
-		if v == "##start" {
-			foundStart = true
-			continue
-		}
-		if foundStart {
-			myGraph.start = strings.Trim(r.FindString(v), " ")
-			foundStart = false
-		}
-
-		if v == "##end" {
-			foundEnd = true
-			continue
-		}
-		if foundEnd {
-			myGraph.end = strings.Trim(r.FindString(v), " ")
-			foundEnd = false
-			break
-		}
-	}
-
-	getRooms(data)
-
-	myGraph.totalAnts = totalAnts
-
-	// get edges
-	edges := strings.Split(string(data), "##end")[1]
-
-	onlyEdges := []string{}
-
-	for _, v := range strings.Split(edges, "\n") {
-		if strings.Contains(v, "-") {
-			onlyEdges = append(onlyEdges, v)
-		}
-	}
-	// fmt.Println(onlyEdges)
-	getEdges(onlyEdges)
+	// add the edge for both sides / rooms
+	g.adjacent[from] = append(g.adjacent[from], to)
+	g.adjacent[to] = append(g.adjacent[to], from)
 }
 
 // /add rooms to graph
-func getRooms(data []byte) {
-	for _, v := range strings.Split(string(data), "\n") {
+func getRooms(dataLines []string) {
+	reg, _ := regexp.Compile(`[a-zA-Z0-9]+\s[0-9]+\s[0-9]+`)
+
+	for _, v := range dataLines {
 		if !strings.HasPrefix(v, "##start") && !strings.HasPrefix(v, "##end") {
 			if reg.MatchString(v) {
 				myGraph.AddRoom(strings.Split(v, " ")[0])
@@ -164,17 +134,24 @@ func getRooms(data []byte) {
 	}
 }
 
+// add vertex / node / room : addds a vertex to the graph
+func (g *Graph) AddRoom(key string) {
+	g.rooms = append(g.rooms, &Room{key})
+}
+
 func printError(msg error) {
 	log.Fatalln(msg)
 }
 
+// /find available routes
 func (g *Graph) deepFirstSearch() [][]string {
 	stack := [][]string{}
 
+	// track visited rooms
 	visited := make(map[string]bool)
 
 	var getPaths func(path []string, room string)
-//0 2 1 
+
 	getPaths = func(path []string, room string) {
 		///if room eq end
 		if room == g.end {
@@ -199,10 +176,7 @@ func (g *Graph) deepFirstSearch() [][]string {
 	return stack
 }
 
-var (
-	validRoutes = [][]string{}
-	scores      = []int{}
-)
+var scores = []int{}
 var routCombs = [][]string{}
 
 func filterRoutes(routes [][]string) {
@@ -220,10 +194,11 @@ func filterRoutes(routes [][]string) {
 		}
 	}
 
-	for _, v := range routes {
-		fmt.Println(v)
+	for i, v := range routes {
+		fmt.Println("route", i, ":", v)
 	}
-	fmt.Println(inter.FindNonIntersectingPaths(routes))
+	fmt.Println("")
+	fmt.Println(inter.FindUniquePaths(routes))
 	// firstRoute := routes[0]
 	// routCombs = append(routCombs, routes[0])
 
@@ -285,9 +260,13 @@ func main() {
 	if len(myArgs) != 1 {
 		printError(errors.New("please enter the file"))
 	}
+
+	// why
 	myGraph.adjacent = make(map[string][]string)
 
 	readFile(myArgs[0])
+	getRooms(dataLines)
+
 	// print adjacent
 	for i, v := range myGraph.adjacent {
 		fmt.Println("adjacents of :", i, "are : ", v)
@@ -308,7 +287,7 @@ func main() {
 	filterRoutes(validRoutes)
 
 	//   fmt.Println(myGraph.adjacent)
-	  myGraph.PrintRooms()
+	myGraph.PrintRooms()
 }
 
 func (g *Graph) PrintRooms() {
@@ -319,4 +298,7 @@ func (g *Graph) PrintRooms() {
 	for roomName := range g.rooms {
 		fmt.Println("roomName: ", roomName)
 	}
+}
+
+func sendAnts() {
 }
