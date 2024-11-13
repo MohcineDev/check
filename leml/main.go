@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"lem/comb"
 	"lem/inter"
 )
 
@@ -176,8 +177,10 @@ func (g *Graph) deepFirstSearch() [][]string {
 	return stack
 }
 
-var scores = []int{}
-var routCombs = [][]string{}
+var (
+	scores    = []int{}
+	routCombs = [][]string{}
+)
 
 func filterRoutes(routes [][]string) {
 	for i, v := range routes {
@@ -198,21 +201,23 @@ func filterRoutes(routes [][]string) {
 		fmt.Println("route", i, ":", v)
 	}
 	fmt.Println("")
-	fmt.Println(inter.FindUniquePaths(routes))
-	// firstRoute := routes[0]
-	// routCombs = append(routCombs, routes[0])
+	fmt.Println(inter.UniquePaths(routes))
 
-	// path := getRoutesComb(firstRoute, routes)
+	firstRoute := routes[0]
+	routCombs = append(routCombs, routes[0])
 
-	// for i := 0; i < len(path); i++ {
-	// 	routCombs = append(routCombs, path[i])
-	// }
+	path := comb.GetRoutesComb(firstRoute, routes)
 
-	// for _, v := range routCombs {
-	// 	fmt.Println("++  : ", v)
-	// }
+	for i := 0; i < len(path); i++ {
+		routCombs = append(routCombs, path[i])
+	}
+
+	for _, v := range routCombs {
+		fmt.Println("++  : ", v)
+	}
 }
 
+//////how many times the room is repeated in other paths
 func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 	count := 0
 
@@ -232,29 +237,7 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 	}
 	scores = append(scores, count)
 }
-
-// ///
-func getRoutesComb(route []string, routes [][]string) [][]string {
-	var path [][]string
-
-	for i := 1; i < len(routes); i++ {
-		a := false
-
-		for j := 1; j < len(route)-1; j++ {
-			for k := 1; k < len(routes[i])-1; k++ {
-				if routes[i][k] == route[j] {
-					a = true
-				}
-			}
-		}
-
-		if !a {
-			path = append(path, routes[i])
-		}
-	}
-	return path
-}
-
+ 
 func main() {
 	myArgs := os.Args[1:]
 	if len(myArgs) != 1 {

@@ -1,24 +1,22 @@
 package inter
 
-// Function to check if two paths intersect
 func pathsIntersect(path1, path2 []string) bool {
 	// Create a map to store rooms in path1 (ignoring start and end rooms)
 	rooms := make(map[string]bool)
-	for i := 1; i < len(path1)-1; i++ { // skip start and end
+	for i := 1; i < len(path1)-1; i++ {
 		rooms[path1[i]] = true
 	}
 
 	// Check if any room in path2 is in rooms map
-	for i := 1; i < len(path2)-1; i++ { // skip start and end
+	for i := 1; i < len(path2)-1; i++ {
 		if rooms[path2[i]] {
-			return true // paths intersect
+			return true
 		}
 	}
-	return false // no intersection
+	return false
 }
 
-// Function to find non-intersecting paths
-func FindUniquePaths(paths [][]string) [][]string {
+func UniquePaths(paths [][]string) [][]string {
 	// Result to store non-intersecting paths
 	var uniquePaths [][]string
 
@@ -40,4 +38,4 @@ func FindUniquePaths(paths [][]string) [][]string {
 		}
 	}
 	return uniquePaths
-} 
+}
