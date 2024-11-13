@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"lem/comb"
 	"lem/inter"
 )
 
@@ -203,21 +202,21 @@ func filterRoutes(routes [][]string) {
 	fmt.Println("")
 	fmt.Println(inter.UniquePaths(routes))
 
-	firstRoute := routes[0]
-	routCombs = append(routCombs, routes[0])
+	// firstRoute := routes[0]
+	// routCombs = append(routCombs, routes[0])
 
-	path := comb.GetRoutesComb(firstRoute, routes)
+	// path := comb.GetRoutesComb(firstRoute, routes)
 
-	for i := 0; i < len(path); i++ {
-		routCombs = append(routCombs, path[i])
-	}
+	// for i := 0; i < len(path); i++ {
+	// 	routCombs = append(routCombs, path[i])
+	// }
 
-	for _, v := range routCombs {
-		fmt.Println("++  : ", v)
-	}
+	// for _, v := range routCombs {
+	// 	fmt.Println("++  : ", v)
+	// }
 }
 
-//////how many times the room is repeated in other paths
+// ////how many times the room is repeated in other paths
 func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 	count := 0
 
@@ -237,7 +236,7 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 	}
 	scores = append(scores, count)
 }
- 
+
 func main() {
 	myArgs := os.Args[1:]
 	if len(myArgs) != 1 {
