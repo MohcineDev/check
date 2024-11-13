@@ -1,161 +1,286 @@
-package piscine
+package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
 
-	"github.com/01-edu/z01"
+	"lem/inter"
 )
 
-func FirstWord(s string) string {
-	res := ""
+// //Graph represents an adjacency list graph
+type Graph struct {
+	start     string
+	end       string
+	totalAnts int
+	rooms     []*Room
+	adjacent  map[string][]string
+	// vertices []*Vertex
+}
 
-	for i := 0; i < len(s); i++ {
-		if string(s[i]) != " " {
-			res += string(s[i])
-		} else if len(res) >= 1 {
+// /Vertex represents a graph vertex
+type Room struct {
+	key string
+}
+
+var (
+	myGraph   = &Graph{}
+	r, _      = regexp.Compile(`([0-9])+\s`)
+	dataLines = []string{}
+)
+
+// ///read file & extract the start & end rooms / nodes / vertexes
+func readFile(myFile string) {
+	data, err := os.ReadFile(myFile)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	////split file data with new line
+	dataLines = strings.Split(string(data), "\n")
+
+	///get the fisrt line / total of ants  // convert it to int
+	totalAnts, err := strconv.Atoi(dataLines[0])
+	if err != nil {
+		printError(errors.New("invalid Ants count"))
+	}
+	myGraph.totalAnts = totalAnts
+
+	///get start and end rooms
+	foundEnd := false
+	foundStart := false
+
+	for _, value := range dataLines {
+		room := strings.Trim(r.FindString(value), " ")
+
+		if value == "##start" {
+			foundStart = true
+			continue
+		}
+
+		if foundStart {
+			myGraph.start = room
+			foundStart = false
+			if len(myGraph.start) < 1 {
+				printError(errors.New("starting room not found"))
+			}
+		}
+
+		if value == "##end" {
+			foundEnd = true
+			continue
+		}
+
+		if foundEnd {
+			myGraph.end = room
+			foundEnd = false
+			if len(myGraph.end) < 1 {
+				printError(errors.New("ending room not found"))
+			}
 			break
 		}
 	}
-	return res + "\n"
-}
 
-func FishAndChips(n int) string {
-	res := "error: non divisible"
-	if n < 0 {
-		res = "error: number is negative"
-	}
-	if n%2 == 0 && n%3 == 0 {
-		res = "fish and chips"
-	} else if n%2 == 0 {
-		res = "fish"
-	} else if n%3 == 0 {
-		res = "chips"
-	}
+	// get edges after ##end flag
+	edges := strings.Split(string(data), "##end")[1]
 
-	return res
-}
+	onlyEdges := []string{}
 
-func Gcd(a, b uint) uint {
-	num := 0
-	to := uint(0)
-
-	if a > b {
-		to = b
-	} else if b > a {
-		to = a
-	}
-	for i := uint(to) - 1; i >= 0; i-- {
-		if a%i == 0 && b%i == 0 {
-			num = int(i)
-			break
+	for _, v := range strings.Split(edges, "\n") {
+		if strings.Contains(v, "-") {
+			onlyEdges = append(onlyEdges, v)
 		}
 	}
-	return uint(num)
+	// fmt.Println(onlyEdges)
+	getEdges(onlyEdges)
 }
 
-func RepeatAlpha(s string) string {
-	res := ""
+func getEdges(edges []string) {
+	for _, v := range edges {
 
-	for i := 0; i < len(s); i++ {
-		index := 0
-		if s[i] >= 'a' && s[i] <= 'z' {
-			for j := 'a'; j <= 'z'; j++ {
-				index++
-				if rune(s[i]) == j {
-					break
+		res := strings.Split(v, "-")
+
+		from := res[0]
+		to := res[1]
+
+		myGraph.addEdge(from, to)
+	}
+}
+
+// addEdge adds an edge to the graph
+func (g *Graph) addEdge(from, to string) {
+	///TODO : check if one of the rooms is not exist
+	/// check if the edge is already added
+
+	// add the edge for both sides / rooms
+	g.adjacent[from] = append(g.adjacent[from], to)
+	g.adjacent[to] = append(g.adjacent[to], from)
+}
+
+// /add rooms to graph
+func getRooms(dataLines []string) {
+	reg, _ := regexp.Compile(`[a-zA-Z0-9]+\s[0-9]+\s[0-9]+`)
+
+	for _, v := range dataLines {
+		if !strings.HasPrefix(v, "##start") && !strings.HasPrefix(v, "##end") {
+			if reg.MatchString(v) {
+				myGraph.AddRoom(strings.Split(v, " ")[0])
+			}
+		}
+	}
+}
+
+// add vertex / node / room : addds a vertex to the graph
+func (g *Graph) AddRoom(key string) {
+	g.rooms = append(g.rooms, &Room{key})
+}
+
+func printError(msg error) {
+	log.Fatalln(msg)
+}
+
+// /find available routes
+func (g *Graph) deepFirstSearch() [][]string {
+	stack := [][]string{}
+
+	// track visited rooms
+	visited := make(map[string]bool)
+
+	var getPaths func(path []string, room string)
+
+	getPaths = func(path []string, room string) {
+		///if room eq end
+		if room == g.end {
+			M := []string{}
+			M = append(M, path...)
+
+			///append the path directly to the stack makes a prb removes end room from the end...
+			stack = append(stack, M)
+			return
+		}
+
+		visited[room] = true
+		for _, v := range g.adjacent[room] {
+			if !visited[v] {
+				getPaths(append(path, v), v)
+			}
+		}
+		visited[room] = false
+	}
+
+	getPaths([]string{g.start}, g.start)
+	return stack
+}
+
+var (
+	scores    = []int{}
+	routCombs = [][]string{}
+)
+
+func filterRoutes(routes [][]string) {
+	for i, v := range routes {
+		compareRout(v, routes, i)
+	}
+
+	///sort the scores and routes slices cuz they have the same length
+	for i := 0; i < len(scores)-1; i++ {
+		for j := i + 1; j < len(scores); j++ {
+			if scores[i] > scores[j] {
+				scores[i], scores[j] = scores[j], scores[i]
+				routes[i], routes[j] = routes[j], routes[i]
+			}
+		}
+	}
+
+	for i, v := range routes {
+		fmt.Println("route", i, ":", v)
+	}
+	fmt.Println("")
+	fmt.Println(inter.UniquePaths(routes))
+
+	// firstRoute := routes[0]
+	// routCombs = append(routCombs, routes[0])
+
+	// path := comb.GetRoutesComb(firstRoute, routes)
+
+	// for i := 0; i < len(path); i++ {
+	// 	routCombs = append(routCombs, path[i])
+	// }
+
+	// for _, v := range routCombs {
+	// 	fmt.Println("++  : ", v)
+	// }
+}
+
+// ////how many times the room is repeated in other paths
+func compareRout(route []string, routes [][]string, currentRouteIndex int) {
+	count := 0
+
+	for i, v := range routes {
+
+		if i == currentRouteIndex {
+			continue
+		}
+		///exclude the start and the end rooms from the comparaison
+		for j := 1; j < len(route)-1; j++ {
+			for k := 1; k < len(v)-1; k++ {
+				if route[j] == v[k] {
+					count++
 				}
 			}
-		} else if s[i] >= 'A' && s[i] <= 'Z' {
-			for j := 'A'; j <= 'Z'; j++ {
-				index++
-				if rune(s[i]) == j {
-					break
-				}
-			}
 		}
-
-		for j := 0; j < index; j++ {
-			res += string(s[i])
-		}
-		res += string(s[i])
-
 	}
-	return res
+	scores = append(scores, count)
 }
 
-func FromTo(from int, to int) string {
-	res := ""
-	if from > 99 || from < 0 || to > 99 || to < 0 {
-		return "Invalid\n"
+func main() {
+	myArgs := os.Args[1:]
+	if len(myArgs) != 1 {
+		printError(errors.New("please enter the file"))
 	}
 
-	if from <= to {
-		for i := from; i <= to; i++ {
-			if i < 10 {
-				res += fmt.Sprintf("0%d ", i)
-			} else {
-				res += fmt.Sprintf("%d", i)
-			}
-		}
-	} else if from > to {
-		for i := from; i >= to; i-- {
-			if i == 1 {
-				res += fmt.Sprintf("0%d", i)
-			} else if i < 10 {
-				res += fmt.Sprintf("0%d ", i)
-			} else {
-				res += fmt.Sprintf("%d ", i)
-			}
-		}
-	}
-	return res + "\n"
-}
+	// why
+	myGraph.adjacent = make(map[string][]string)
 
-func Itoa(n int) string {
-	res := ""
-	num := 0
-	sign := ""
-	if n < 0 {
-		sign = "-"
-		n *= -1
-	}
-	if n == 0 {
-		return "0"
+	readFile(myArgs[0])
+	getRooms(dataLines)
+
+	// print adjacent
+	for i, v := range myGraph.adjacent {
+		fmt.Println("adjacents of :", i, "are : ", v)
 	}
 
-	for n > 0 {
-		num = n % 10
-		n = n / 10
-		res = string(rune(num)+'0') + res
-	}
+	paths := myGraph.deepFirstSearch()
+	fmt.Println("DFS : ", paths)
 
-	return sign + res
-}
+	validRoutes := [][]string{}
 
-func PrintMemory(arr [10]byte) {
-	base := "0123456789abcdef"
-	fmt.Println("")
-	z01.PrintRune(71)
-	z01.PrintRune(rune(71))
-	fmt.Println("")
-	for i := 0; i < len(arr); i++ {
-		div := int(arr[i]) / len(base)
-		mod := int(arr[i]) % len(base)
-		z01.PrintRune(rune(base[div]))
-		z01.PrintRune(rune(base[mod]))
-		z01.PrintRune(' ')
-
-		if i == 3 || i == 7 {
-			z01.PrintRune('\n')
-		}
-	}
-	z01.PrintRune('\n')
-
-	for i := 0; i < len(arr); i++ {
-		z01.PrintRune(rune(arr[i]))
-		if arr[i] < 32 || arr[i] > 127 {
-			z01.PrintRune('.')
+	for _, v := range paths {
+		if v[len(v)-1] == myGraph.end {
+			/// only paths that end with myGraph.end room
+			validRoutes = append(validRoutes, v)
 		}
 	}
 	fmt.Println("")
+	filterRoutes(validRoutes)
+
+	//   fmt.Println(myGraph.adjacent)
+	myGraph.PrintRooms()
+}
+
+func (g *Graph) PrintRooms() {
+	fmt.Println("totalAnts : ", myGraph.totalAnts)
+	fmt.Println("start : ", myGraph.start)
+	fmt.Println("end : ", myGraph.end)
+	fmt.Println("Rooms in the graph : ")
+	for roomName := range g.rooms {
+		fmt.Println("roomName: ", roomName)
+	}
+}
+
+func sendAnts() {
 }
