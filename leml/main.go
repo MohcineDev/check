@@ -240,7 +240,7 @@ func compareRout(route []string, routes [][]string, currentRouteIndex int) {
 func main() {
 	myArgs := os.Args[1:]
 	if len(myArgs) != 1 {
-		printError(errors.New("please enter the file"))
+		printError(errors.New("please enter the data file"))
 	}
 
 	// why
